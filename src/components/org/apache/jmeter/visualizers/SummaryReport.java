@@ -207,29 +207,39 @@ public class SummaryReport extends AbstractVisualizer implements Clearable, Acti
     }
 
     @Override
-    public void add(final SampleResult res) {
+        public void add(final SampleResult res) {
 
         final List<SampleResult> subResults = Arrays.asList(res.getSubResults());
-        for (SampleResult r : subResults) {
-            Calculator row = tableRows.computeIfAbsent(r.getSampleLabel(useGroupName.isSelected()), label -> {
-                Calculator newRow = new Calculator(label);
-                newRows.add(newRow);
-                return newRow;
-            });
+		if(subResults.size()!=0){
+			for (SampleResult r : subResults) {
+				addResults(r);
+			}
+		}
+		else{
+				addResults(res);
+		}
+		
+        dataChanged = true;
+    }
+	
+	public void addResults(SampleResult res)
+	{
+			Calculator row = tableRows.computeIfAbsent(res.getSampleLabel(useGroupName.isSelected()), label -> {
+			Calculator newRow = new Calculator(label);
+			newRows.add(newRow);
+			return newRow;
+			});
             /*
              * Synch is needed because multiple threads can update the counts.
              */
             synchronized (row) {
-                row.addSample(r);
+                row.addSample(res);
             }
             Calculator tot = tableRows.get(TOTAL_ROW_LABEL);
             synchronized (lock) {
-                tot.addSample(r);
+                tot.addSample(res);
             }
-        }
-
-        dataChanged = true;
-    }
+	}
     /**
      * Clears this visualizer and its model, and forces a repaint of the table.
      */
